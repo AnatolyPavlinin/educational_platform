@@ -1,6 +1,34 @@
 import uuid
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 from django.db import models
+from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.contenttypes.models import ContentType
+from decimal import Decimal
+from lms.models import Course, Lesson
+
+
+PAYMENT_METHODS = [
+    ('cash', 'Наличные'),
+    ('transfer', 'Перевод на счет'),
+]
+
+
+class Payment(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+
+    user = models.ForeignKey('users.User', on_delete=models.CASCADE, related_name='payments')
+    payment_date = models.DateTimeField(auto_now_add=True)
+
+    # Поля для связи "Курс ИЛИ Урок"
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
+    object_id = models.UUIDField()
+    paid_object = GenericForeignKey('content_type', 'object_id')
+
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    method = models.CharField(max_length=10, choices=PAYMENT_METHODS)
+
+    def __str__(self):
+        return f'Платёж {self.user.email} - {self.amount}'
 
 
 class UserManager(BaseUserManager):
