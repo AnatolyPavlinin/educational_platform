@@ -1,7 +1,8 @@
 from lms.models import Course, Lesson
 from rest_framework import serializers
 from django.contrib.contenttypes.models import ContentType
-from .models import Payment
+from django.contrib.auth.password_validation import validate_password
+from .models import Payment, User
 from lms.serializers import CourseSerializer, LessonSerializer
 
 
@@ -43,3 +44,34 @@ class PaymentSerializer(serializers.ModelSerializer):
             'method_display'
         ]
         read_only_fields = ['id', 'payment_date', 'user']
+
+
+class UserSerializer(serializers.ModelSerializer):
+    """Сериализатор для вывода данных пользователя и их редактирования (кроме пароля)."""
+
+    class Meta:
+        model = User
+        fields = ['id', 'email', 'phone', 'city', 'avatar']
+        read_only_fields = ['id']
+
+
+class UserCreateSerializer(serializers.ModelSerializer):
+    """Сериализатор  для регистрации нового пользователя"""
+
+    password = serializers.CharField(
+        write_only=True,
+        required=True,
+        validators=[validate_password],
+        style={'input_type': 'password'},
+        help_text="Пароль не должен быть слишком простым."
+    )
+
+    class Meta:
+        model = User
+        fields = ['email', 'password']
+        extra_kwargs = {
+            'email': {'required': True}
+        }
+
+    def create(self, validated_data):
+        return User.objects.create_user(**validated_data)
