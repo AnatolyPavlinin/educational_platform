@@ -2,7 +2,7 @@ from rest_framework import viewsets, generics, permissions
 from .models import Course, Lesson
 from .serializers import CourseSerializer, LessonSerializer
 from rest_framework.permissions import AllowAny
-from users.permissions import IsModerator
+from users.permissions import IsModerator, IsOwner
 
 
 class CourseViewSet(viewsets.ModelViewSet):
@@ -16,16 +16,21 @@ class CourseViewSet(viewsets.ModelViewSet):
         elif self.action == 'create':
             permission_classes = [permissions.IsAuthenticated]
 
-        elif self.action in ['update', 'partial_update']:
-            permission_classes = [permissions.IsAuthenticated, IsModerator]
-
-        elif self.action == 'destroy':
-            permission_classes = [permissions.IsAuthenticated, IsModerator]
-
         else:
-            permission_classes = [permissions.IsAuthenticated]
+            permission_classes = [permissions.IsAuthenticated, IsOwner | IsModerator]
 
         return [permission() for permission in permission_classes]
+
+    def perform_create(self, serializer):
+        serializer.save(owner=self.request.user)
+
+    def get_queryset(self):
+        # Если заходит модератор, показываем ему всё
+        if self.request.user.groups.filter(name='moderators').exists():
+            return Course.objects.all()
+
+        # Обычный пользователь видит только свои курсы
+        return Course.objects.filter(owner=self.request.user)
 
 
 class LessonListCreateAPIView(generics.ListCreateAPIView):
@@ -38,11 +43,10 @@ class LessonRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Lesson.objects.all()
     serializer_class = LessonSerializer
 
-    # Видеть детальки может любой залогиненный.
-    # Обновлять (PUT/PATCH) — владелец ИЛИ модератор.
-    # Удалять — только модератор (или владелец, см. Задание 3).
-    permission_classes = [
-        permissions.IsAuthenticated,
-        IsModerator | permissions.DjangoModelPermissions
-        # DjangoModelPermissions проверяет add/change/delete из админки
-    ]
+    def get_permissions(self):
+        if self.action == 'retrieve':
+            return [permissions.IsAuthenticated()]
+        return [permissions.IsAuthenticated(), IsOwner | IsModerator]
+
+    def perform_create(self, serializer):
+        serializer.save(owner=self.request.user)
