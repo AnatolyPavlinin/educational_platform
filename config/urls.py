@@ -3,7 +3,7 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from lms.views import CourseViewSet, LessonListCreateAPIView, LessonRetrieveUpdateDestroyAPIView
+from lms.views import CourseViewSet, LessonListCreateAPIView, LessonRetrieveUpdateDestroyAPIView, CourseSubscribeAPIView
 from users.views import PaymentViewSet, RegistrationAPIView, UserViewSet
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
@@ -15,6 +15,9 @@ router.register(r'users', UserViewSet)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+
+    path('api/courses/<uuid:pk>/subscribe/', CourseSubscribeAPIView.as_view(), name='course-subscribe'),
+
     path('api/', include(router.urls)),
 
     path('api/auth/register/', RegistrationAPIView.as_view(), name='register'),
