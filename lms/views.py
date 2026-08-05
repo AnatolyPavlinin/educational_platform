@@ -60,8 +60,10 @@ class LessonListCreateAPIView(generics.ListCreateAPIView):
 
     def get_queryset(self):
         if self.request.user.groups.filter(name="moderators").exists():
-            return Lesson.objects.all()
-        return Lesson.objects.filter(owner=self.request.user)
+            return Lesson.objects.all().order_by('-id')
+
+        qs = Lesson.objects.filter(owner=self.request.user).order_by('-id')
+        return qs
 
     def perform_create(self, serializer):
         serializer.save(owner=self.request.user)

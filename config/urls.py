@@ -25,8 +25,10 @@ urlpatterns = [
     path('api/auth/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
 
 
-    path('api/lessons/', LessonListCreateAPIView.as_view(), name='lesson-list-create'),
+    path('api/lessons/', LessonListCreateAPIView.as_view(), name='lesson-list'),
     path('api/lessons/<uuid:pk>/', LessonRetrieveUpdateDestroyAPIView.as_view(), name='lesson-detail'),
+
+
 ]
 
 if settings.DEBUG:
