@@ -1,3 +1,4 @@
+from lms.paginators import StandardResultsSetPagination
 from rest_framework import viewsets, generics, permissions, status
 from .models import Course, Lesson, CourseSubscription
 from .serializers import CourseSerializer, LessonSerializer
@@ -8,7 +9,9 @@ from rest_framework.response import Response
 
 
 class CourseViewSet(viewsets.ModelViewSet):
+    queryset = Course.objects.all()
     serializer_class = CourseSerializer
+    pagination_class = StandardResultsSetPagination
 
     def get_queryset(self):
         # Модераторы видят всё, обычные пользователи — только своё
@@ -51,7 +54,9 @@ class CourseViewSet(viewsets.ModelViewSet):
 
 
 class LessonListCreateAPIView(generics.ListCreateAPIView):
+    queryset = Lesson.objects.all()
     serializer_class = LessonSerializer
+    pagination_class = StandardResultsSetPagination
 
     def get_queryset(self):
         if self.request.user.groups.filter(name="moderators").exists():
