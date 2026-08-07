@@ -4,7 +4,7 @@ from django.contrib import admin
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from lms.views import CourseViewSet, LessonListCreateAPIView, LessonRetrieveUpdateDestroyAPIView, CourseSubscribeAPIView
-from users.views import PaymentViewSet, RegistrationAPIView, UserViewSet
+from users.views import PaymentViewSet, RegistrationAPIView, UserViewSet, CreatePaymentAPIView
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from rest_framework import permissions
 from drf_yasg.views import get_schema_view
@@ -47,7 +47,7 @@ urlpatterns = [
     path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
     path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
 
-
+    path('api/payments/create/', CreatePaymentAPIView.as_view(), name='create-payment'),
 ]
 
 if settings.DEBUG:
