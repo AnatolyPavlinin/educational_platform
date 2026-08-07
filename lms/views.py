@@ -6,12 +6,21 @@ from users.permissions import IsModerator, IsOwner
 from django.shortcuts import get_object_or_404
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiResponse
+from drf_spectacular.types import OpenApiTypes
 
 
 class CourseViewSet(viewsets.ModelViewSet):
     queryset = Course.objects.all()
     serializer_class = CourseSerializer
     pagination_class = StandardResultsSetPagination
+
+    @extend_schema(parameters=[
+        OpenApiParameter("ordering", type=str, enum=["date", "-date"], location=OpenApiParameter.QUERY,
+                         description="Сортировка по дате")
+    ])
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
 
     def get_queryset(self):
         # Модераторы видят всё, обычные пользователи — только своё

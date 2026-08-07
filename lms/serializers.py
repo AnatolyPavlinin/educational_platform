@@ -1,6 +1,8 @@
 from rest_framework import serializers
 from .models import Course, Lesson, CourseSubscription
 from .validators import validate_youtube_url
+from drf_spectacular.utils import extend_schema_field
+from drf_spectacular.types import OpenApiTypes
 
 
 class LessonSerializer(serializers.ModelSerializer):
@@ -27,6 +29,7 @@ class CourseSerializer(serializers.ModelSerializer):
     def get_lessons_count(self, obj):
         return obj.lessons.count()
 
+    @extend_schema_field(OpenApiTypes.BOOL)
     def get_is_subscribed(self, obj):
         request = self.context.get('request')
 
