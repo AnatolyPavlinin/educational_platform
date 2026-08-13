@@ -6,14 +6,19 @@ from users.permissions import IsModerator, IsOwner
 from django.shortcuts import get_object_or_404
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiResponse
-from drf_spectacular.types import OpenApiTypes
+from drf_spectacular.utils import extend_schema, OpenApiParameter
+from users.tasks import send_course_update_email
 
 
 class CourseViewSet(viewsets.ModelViewSet):
     queryset = Course.objects.all()
     serializer_class = CourseSerializer
     pagination_class = StandardResultsSetPagination
+
+    def perform_update(self, serializer):
+        instance = serializer.save()
+        if self.action == 'update':
+            send_course_update_email.delay(str(instance.id))
 
     @extend_schema(parameters=[
         OpenApiParameter("ordering", type=str, enum=["date", "-date"], location=OpenApiParameter.QUERY,
