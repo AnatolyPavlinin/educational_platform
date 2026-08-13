@@ -14,6 +14,8 @@ from pathlib import Path
 import os
 from dotenv import load_dotenv
 
+from celery.schedules import crontab
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 load_dotenv(BASE_DIR / ".env")
@@ -46,6 +48,7 @@ INSTALLED_APPS = [
     'django_filters',
     'rest_framework_simplejwt',
     'drf_yasg',
+    'django_celery_beat',
     
     'users.apps.UsersConfig',
     'lms.apps.LmsConfig',
@@ -147,3 +150,11 @@ REST_FRAMEWORK = {
 
 CELERY_BROKER_URL = os.getenv("CELERY_BROKER_URL")
 CELERY_RESULT_BACKEND = os.getenv("CELERY_RESULT_BACKEND")
+CELERY_TIMEZONE = os.getenv("TIME_ZONE", "UTC")
+
+CELERY_BEAT_SCHEDULE = {
+    'block-inactive-users-monthly': {
+        'task': 'users.tasks.block_inactive_users',
+        'schedule': crontab(day_of_month='1'),
+    },
+}

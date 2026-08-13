@@ -1,10 +1,14 @@
 from __future__ import absolute_import, unicode_literals
+
+from datetime import timedelta
+from django.utils.timezone import now
 from celery import shared_task
 from django.core.mail import send_mail
 from lms.models import CourseSubscription, Course
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
 from django.conf import settings
+from users.models import User
 
 
 @shared_task
@@ -34,3 +38,17 @@ def send_course_update_email(course_id: str):
 
     except Exception as e:
         pass
+
+
+@shared_task
+def block_inactive_users():
+    one_month_ago = now() - timedelta(days=30)
+
+    inactive_users = User.objects.filter(
+        is_active=True,
+        last_login__lt=one_month_ago
+    )
+
+    count_blocked = inactive_users.update(is_active=False)
+
+    return {"blocked": count_blocked}
