@@ -184,7 +184,7 @@ last_login и, если пользователь не заходил более 
 
 ### ДЗ 34.2
 ### Подготовка
-1. Скопируйте файл .env.example в .env:
+1. Скопируйте файл .env.template в .env:
 
 bash
 #### cp .env.example .env
