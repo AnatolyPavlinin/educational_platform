@@ -17,13 +17,20 @@ class CourseViewSet(viewsets.ModelViewSet):
 
     def perform_update(self, serializer):
         instance = serializer.save()
-        if self.action == 'update':
+        if self.action == "update":
             send_course_update_email.delay(str(instance.id))
 
-    @extend_schema(parameters=[
-        OpenApiParameter("ordering", type=str, enum=["date", "-date"], location=OpenApiParameter.QUERY,
-                         description="Сортировка по дате")
-    ])
+    @extend_schema(
+        parameters=[
+            OpenApiParameter(
+                "ordering",
+                type=str,
+                enum=["date", "-date"],
+                location=OpenApiParameter.QUERY,
+                description="Сортировка по дате",
+            )
+        ]
+    )
     def list(self, request, *args, **kwargs):
         return super().list(request, *args, **kwargs)
 
@@ -42,24 +49,15 @@ class CourseViewSet(viewsets.ModelViewSet):
 
         elif self.action == "create":
             # Авторизован И НЕ модератор
-            permission_classes = [
-                permissions.IsAuthenticated,
-                ~IsModerator
-            ]
+            permission_classes = [permissions.IsAuthenticated, ~IsModerator]
 
         elif self.action in ["update", "partial_update"]:
             # Владелец ИЛИ модератор
-            permission_classes = [
-                permissions.IsAuthenticated,
-                IsOwner | IsModerator
-            ]
+            permission_classes = [permissions.IsAuthenticated, IsOwner | IsModerator]
 
         elif self.action == "destroy":
             # Только владелец (модераторам удалять нельзя!)
-            permission_classes = [
-                permissions.IsAuthenticated,
-                IsOwner
-            ]
+            permission_classes = [permissions.IsAuthenticated, IsOwner]
 
         else:
             permission_classes = [permissions.IsAuthenticated]
@@ -74,9 +72,9 @@ class LessonListCreateAPIView(generics.ListCreateAPIView):
 
     def get_queryset(self):
         if self.request.user.groups.filter(name="moderators").exists():
-            return Lesson.objects.all().order_by('-id')
+            return Lesson.objects.all().order_by("-id")
 
-        qs = Lesson.objects.filter(owner=self.request.user).order_by('-id')
+        qs = Lesson.objects.filter(owner=self.request.user).order_by("-id")
         return qs
 
     def perform_create(self, serializer):
@@ -86,10 +84,7 @@ class LessonListCreateAPIView(generics.ListCreateAPIView):
         if self.request.method == "GET":
             permission_classes = [permissions.IsAuthenticated]
         else:  # POST
-            permission_classes = [
-                permissions.IsAuthenticated,
-                ~IsModerator
-            ]
+            permission_classes = [permissions.IsAuthenticated, ~IsModerator]
         return [permission() for permission in permission_classes]
 
 
@@ -106,16 +101,10 @@ class LessonRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
             permission_classes = [permissions.IsAuthenticated]
 
         elif self.request.method in ["PUT", "PATCH"]:
-            permission_classes = [
-                permissions.IsAuthenticated,
-                IsOwner | IsModerator
-            ]
+            permission_classes = [permissions.IsAuthenticated, IsOwner | IsModerator]
 
         else:  # DELETE
-            permission_classes = [
-                permissions.IsAuthenticated,
-                IsOwner
-            ]
+            permission_classes = [permissions.IsAuthenticated, IsOwner]
 
         return [permission() for permission in permission_classes]
 
@@ -124,28 +113,26 @@ class CourseSubscribeAPIView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def post(self, request, *args, **kwargs):
-        course_id = kwargs.get('pk')
+        course_id = kwargs.get("pk")
         course_item = get_object_or_404(Course, id=course_id)
 
         # Ищем существующую подписку
         subs_item = CourseSubscription.objects.filter(
-            user=request.user,
-            course=course_item
+            user=request.user, course=course_item
         )
 
         if subs_item.exists():
             # Если есть — отписываемся
             subs_item.delete()
-            message = 'Вы успешно отписались от обновлений курса.'
+            message = "Вы успешно отписались от обновлений курса."
             subscribed = False
         else:
             # Если нет — создаем
             CourseSubscription.objects.create(user=request.user, course=course_item)
-            message = 'Вы успешно подписались на обновления курса.'
+            message = "Вы успешно подписались на обновления курса."
             subscribed = True
 
         # Возвращаем сообщение и актуальный статус для фронтенда
-        return Response({
-            "message": message,
-            "subscribed": subscribed
-        }, status=status.HTTP_200_OK)
+        return Response(
+            {"message": message, "subscribed": subscribed}, status=status.HTTP_200_OK
+        )

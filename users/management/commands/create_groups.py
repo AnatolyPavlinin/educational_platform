@@ -3,13 +3,17 @@ from django.contrib.auth.models import Group
 
 
 class Command(BaseCommand):
-    help = 'Создает необходимые группы пользователей'
+    help = "Создает необходимые группы пользователей"
 
     def handle(self, *args, **options):
-        group_name = 'moderators'
+        group_name = "moderators"
 
         if not Group.objects.filter(name=group_name).exists():
             Group.objects.create(name=group_name)
-            self.stdout.write(self.style.SUCCESS(f'Группа "{group_name}" успешно создана.'))
+            self.stdout.write(
+                self.style.SUCCESS(f'Группа "{group_name}" успешно создана.')
+            )
         else:
-            self.stdout.write(self.style.WARNING(f'Группа "{group_name}" уже существует.'))
+            self.stdout.write(
+                self.style.WARNING(f'Группа "{group_name}" уже существует.')
+            )

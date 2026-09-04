@@ -7,7 +7,7 @@ from django.contrib.contenttypes.models import ContentType
 
 
 class Command(BaseCommand):
-    help = 'Заполняет таблицу платежей тестовыми данными'
+    help = "Заполняет таблицу платежей тестовыми данными"
 
     def handle(self, *args, **options):
         # Получаем контент-типы для GenericRelation
@@ -21,27 +21,30 @@ class Command(BaseCommand):
 
             if not all([user, course, lesson]):
                 self.stdout.write(
-                    self.style.ERROR('Сначала создайте хотя бы одного пользователя, один курс и один урок.'))
+                    self.style.ERROR(
+                        "Сначала создайте хотя бы одного пользователя, один курс и один урок."
+                    )
+                )
                 return
 
             Payment.objects.create(
                 user=user,
                 content_type=course_ct,
                 object_id=course.id,
-                amount=Decimal('999.00'),
-                method='cash',
-                payment_date=timezone.now()
+                amount=Decimal("999.00"),
+                method="cash",
+                payment_date=timezone.now(),
             )
 
             Payment.objects.create(
                 user=user,
                 content_type=lesson_ct,
                 object_id=lesson.id,
-                amount=Decimal('199.00'),
-                method='transfer',
-                payment_date=timezone.now()
+                amount=Decimal("199.00"),
+                method="transfer",
+                payment_date=timezone.now(),
             )
 
-            self.stdout.write(self.style.SUCCESS('Данные успешно добавлены!'))
+            self.stdout.write(self.style.SUCCESS("Данные успешно добавлены!"))
         except Exception as e:
-            self.stdout.write(self.style.ERROR(f'Ошибка: {e}'))
+            self.stdout.write(self.style.ERROR(f"Ошибка: {e}"))

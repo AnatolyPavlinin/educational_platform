@@ -1,0 +1,65 @@
+services:
+  db:
+    restart: always
+    image: postgres:17
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      TZ: ${TIME_ZONE}
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 40s
+
+  redis:
+    restart: always
+    image: redis:alpine
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  web:
+    restart: always
+    build: .
+    depends_on:
+      db:
+        condition: service_healthy  # Ждём, пока база реально готова принимать соединения
+      redis:
+        condition: service_healthy   # Ждём, пока Redis ответит ping
+    env_file:
+      - .env
+    volumes:
+      - .:/app                 # Монтируем код проекта (чтобы изменения подхватывались)
+      - static_volume:/app/staticfiles
+      - media_volume:/app/media
+    command: >
+      sh -c "
+          python manage.py collectstatic --noinput &&
+          python manage.py migrate &&
+          gunicorn config.wsgi:application --bind 0.0.0.0:8000 --workers 4"
+
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf
+      - static_volume:/app/staticfiles
+      - media_volume:/app/media
+    depends_on:
+      - web
+    restart: always
+
+volumes:
+  postgres_data:
+  static_volume:
+  media_volume:

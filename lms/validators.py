@@ -8,11 +8,11 @@ def validate_youtube_url(value):
 
     # Проверяем наличие схемы (http/https) и сетевого расположения (домена)
     if not all([parsed_url.scheme, parsed_url.netloc]):
-        raise ValidationError('Введите полную ссылку, включая http:// или https://')
+        raise ValidationError("Введите полную ссылку, включая http:// или https://")
 
     domain = parsed_url.netloc.lower()
 
-    allowed_domains = ['youtube.com', 'www.youtube.com', 'm.youtube.com', 'youtu.be']
+    allowed_domains = ["youtube.com", "www.youtube.com", "m.youtube.com", "youtu.be"]
 
     if domain not in allowed_domains:
         raise ValidationError(
