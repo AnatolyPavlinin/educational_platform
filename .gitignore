@@ -218,3 +218,13 @@ __marimo__/
 postgres_data/
 static_volume/
 media_volume/
+
+# Celery beat schedule files
+config/celerybeat-schedule.*
+
+# Coverage report
+html.cov/
+*.coverage
+
+# SQLite test DB (если появится)
+*.sqlite3
