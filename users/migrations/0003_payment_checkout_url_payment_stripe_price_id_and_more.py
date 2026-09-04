@@ -6,28 +6,28 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('users', '0002_payment'),
+        ("users", "0002_payment"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='payment',
-            name='checkout_url',
+            model_name="payment",
+            name="checkout_url",
             field=models.URLField(blank=True, null=True),
         ),
         migrations.AddField(
-            model_name='payment',
-            name='stripe_price_id',
+            model_name="payment",
+            name="stripe_price_id",
             field=models.CharField(blank=True, max_length=50, null=True),
         ),
         migrations.AddField(
-            model_name='payment',
-            name='stripe_product_id',
+            model_name="payment",
+            name="stripe_product_id",
             field=models.CharField(blank=True, max_length=50, null=True),
         ),
         migrations.AddField(
-            model_name='payment',
-            name='stripe_session_id',
+            model_name="payment",
+            name="stripe_session_id",
             field=models.CharField(blank=True, max_length=50, null=True),
         ),
     ]

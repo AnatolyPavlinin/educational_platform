@@ -9,21 +9,48 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('contenttypes', '0002_remove_content_type_name'),
-        ('users', '0001_initial'),
+        ("contenttypes", "0002_remove_content_type_name"),
+        ("users", "0001_initial"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Payment',
+            name="Payment",
             fields=[
-                ('id', models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True, serialize=False)),
-                ('payment_date', models.DateTimeField(auto_now_add=True)),
-                ('object_id', models.UUIDField()),
-                ('amount', models.DecimalField(decimal_places=2, max_digits=10)),
-                ('method', models.CharField(choices=[('cash', 'Наличные'), ('transfer', 'Перевод на счет')], max_length=10)),
-                ('content_type', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='contenttypes.contenttype')),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='payments', to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.UUIDField(
+                        default=uuid.uuid4,
+                        editable=False,
+                        primary_key=True,
+                        serialize=False,
+                    ),
+                ),
+                ("payment_date", models.DateTimeField(auto_now_add=True)),
+                ("object_id", models.UUIDField()),
+                ("amount", models.DecimalField(decimal_places=2, max_digits=10)),
+                (
+                    "method",
+                    models.CharField(
+                        choices=[("cash", "Наличные"), ("transfer", "Перевод на счет")],
+                        max_length=10,
+                    ),
+                ),
+                (
+                    "content_type",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="contenttypes.contenttype",
+                    ),
+                ),
+                (
+                    "user",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="payments",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
         ),
     ]
