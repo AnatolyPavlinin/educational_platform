@@ -49,8 +49,7 @@ jobs:
 
       - name: Add server to known_hosts
         run: |
-          mkdir -p ~/.ssh
-          ssh-keyscan -H 51.250.34.51 >> ~/.ssh/known_hosts
+          run: mkdir -p ~/.ssh && ssh-keyscan -H 51.250.34.51 >> ~/.ssh/known_hosts
 
       - name: Deploy to server
         run: |
