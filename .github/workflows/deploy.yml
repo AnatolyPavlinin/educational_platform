@@ -42,10 +42,10 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-#      - name: Setup SSH Keys
-#        uses: webfactory/ssh-agent@v0.9.0
-#        with:
-#          ssh-private-key: \${{ secrets.SSH_PRIVATE_KEY }}
+      - name: Setup SSH Keys
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: \${{ secrets.SSH_PRIVATE_KEY }}
 
       - name: Add server to known_hosts
         run: mkdir -p ~/.ssh && ssh-keyscan -H 51.250.34.51 >> ~/.ssh/known_hosts
